@@ -5,6 +5,11 @@ on:
   push:
     branches: ["main"]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -55,6 +60,57 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python -m eval_harness.runner --dataset datasets/extraction.jsonl --model gpt-5.2 --min-pass-rate 0.80 --out-json reports/extraction.json --out-md reports/extraction.md
+
+      - name: Baseline regression gate (classification)
+        run: |
+          python -m eval_harness.regression_gate --report-json reports/classification.json --baseline-json baselines/eval_baseline.json --dataset-key classification --max-drop 0.03
+
+      - name: Baseline regression gate (extraction)
+        run: |
+          python -m eval_harness.regression_gate --report-json reports/extraction.json --baseline-json baselines/eval_baseline.json --dataset-key extraction --max-drop 0.05
+
+      - name: Build PR eval summary
+        run: |
+          python -m eval_harness.ci_summary --reports reports/classification.json reports/extraction.json --out reports/pr_comment.md
+
+      - name: Comment PR with eval summary
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- ai-eval-harness-summary -->";
+            const summary = fs.readFileSync("reports/pr_comment.md", "utf8");
+            const body = `${marker}\n${summary}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            const existing = comments.find(
+              (comment) => comment.user?.type === "Bot" && comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body
+              });
+            }
 
       - name: Upload reports
         uses: actions/upload-artifact@v4

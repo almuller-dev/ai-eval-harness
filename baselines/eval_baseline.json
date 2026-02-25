@@ -1,0 +1,10 @@
+{
+  "classification": {
+    "pass_rate": 0.9,
+    "notes": "Initial baseline aligned with CI threshold."
+  },
+  "extraction": {
+    "pass_rate": 0.8,
+    "notes": "Initial baseline aligned with CI threshold."
+  }
+}
