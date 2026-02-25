@@ -36,7 +36,8 @@ jobs:
 
   evals:
     runs-on: ubuntu-latest
-    if: ${{ secrets.OPENAI_API_KEY != '' }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -44,37 +45,53 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Check OPENAI_API_KEY presence
+        id: openai_key
+        run: |
+          if [ -n "${OPENAI_API_KEY}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip live evals when OPENAI_API_KEY is missing
+        if: ${{ steps.openai_key.outputs.present != 'true' }}
+        run: |
+          echo "OPENAI_API_KEY not configured; skipping live eval steps."
+
       - name: Install
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         run: |
           python -m pip install --upgrade pip
           pip install -e .[dev]
 
       - name: Run classification evals (CI gate)
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         run: |
           python -m eval_harness.runner --dataset datasets/classification.jsonl --model gpt-5.2 --min-pass-rate 0.90 --out-json reports/classification.json --out-md reports/classification.md
 
       - name: Run extraction evals (CI gate)
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         run: |
           python -m eval_harness.runner --dataset datasets/extraction.jsonl --model gpt-5.2 --min-pass-rate 0.80 --out-json reports/extraction.json --out-md reports/extraction.md
 
       - name: Baseline regression gate (classification)
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         run: |
           python -m eval_harness.regression_gate --report-json reports/classification.json --baseline-json baselines/eval_baseline.json --dataset-key classification --max-drop 0.03
 
       - name: Baseline regression gate (extraction)
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         run: |
           python -m eval_harness.regression_gate --report-json reports/extraction.json --baseline-json baselines/eval_baseline.json --dataset-key extraction --max-drop 0.05
 
       - name: Build PR eval summary
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         run: |
           python -m eval_harness.ci_summary --reports reports/classification.json reports/extraction.json --out reports/pr_comment.md
 
       - name: Comment PR with eval summary
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ steps.openai_key.outputs.present == 'true' && github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -113,6 +130,7 @@ jobs:
             }
 
       - name: Upload reports
+        if: ${{ steps.openai_key.outputs.present == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: eval-reports
