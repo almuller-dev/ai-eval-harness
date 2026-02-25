@@ -1,0 +1,3 @@
+{"id":"c1","task":"label","input":"User can't log into VPN; password was reset yesterday.","expected":{"label":"auth"}}
+{"id":"c2","task":"label","input":"RDP session opens but keyboard input doesn't work inside the VM.","expected":{"label":"remote_desktop"}}
+{"id":"c3","task":"label","input":"Need to onboard new hire: laptop, email, Slack, and Okta access.","expected":{"label":"onboarding"}}
