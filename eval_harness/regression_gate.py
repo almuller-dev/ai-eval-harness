@@ -1,3 +1,5 @@
+"""Baseline regression gate utilities for CI quality budget enforcement."""
+
 from __future__ import annotations
 
 import argparse

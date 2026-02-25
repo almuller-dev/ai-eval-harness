@@ -1,3 +1,5 @@
+"""Pydantic models for datasets, row-level results, and evaluation summaries."""
+
 from __future__ import annotations
 
 from typing import Any, Literal

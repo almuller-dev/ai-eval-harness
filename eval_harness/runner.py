@@ -1,3 +1,5 @@
+"""Main evaluation execution pipeline and report generation entrypoint."""
+
 from __future__ import annotations
 
 import argparse
@@ -17,6 +19,7 @@ PROMPT_MAP = {
 
 
 def load_dataset(path: str) -> list[DatasetRow]:
+    """Load newline-delimited JSON dataset rows into validated models."""
     rows: list[DatasetRow] = []
     for line in Path(path).read_text(encoding="utf-8").splitlines():
         if not line.strip():
@@ -26,6 +29,7 @@ def load_dataset(path: str) -> list[DatasetRow]:
 
 
 def evaluate_row(client: LLMClient, *, model: str, row: DatasetRow) -> EvalResult:
+    """Evaluate one dataset row with the configured model and task metric."""
     template = load_prompt(PROMPT_MAP[row.task])
     prompt = render(template, input_text=row.input)
     pred = client.generate(prompt=prompt, model=model)
@@ -51,6 +55,7 @@ def evaluate_row(client: LLMClient, *, model: str, row: DatasetRow) -> EvalResul
 
 
 def run_eval(*, dataset_path: str, model: str, client: LLMClient) -> RunSummary:
+    """Run all evaluations for a dataset and aggregate pass-rate statistics."""
     rows = load_dataset(dataset_path)
     results = [evaluate_row(client, model=model, row=r) for r in rows]
     passed = sum(1 for r in results if r.passed)
@@ -68,6 +73,7 @@ def run_eval(*, dataset_path: str, model: str, client: LLMClient) -> RunSummary:
 
 
 def write_reports(summary: RunSummary, *, json_path: str, md_path: str) -> None:
+    """Write machine-readable JSON and markdown summary reports."""
     Path(json_path).parent.mkdir(parents=True, exist_ok=True)
     Path(md_path).parent.mkdir(parents=True, exist_ok=True)
 
@@ -92,6 +98,7 @@ def write_reports(summary: RunSummary, *, json_path: str, md_path: str) -> None:
 
 
 def main() -> int:
+    """CLI entrypoint for executing an eval run with optional CI gating."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", required=True, help="Path to a .jsonl dataset")
     ap.add_argument("--model", default="gpt-5.2", help="Model name")

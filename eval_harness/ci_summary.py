@@ -1,3 +1,5 @@
+"""Builds CI-friendly markdown summaries from evaluation report JSON artifacts."""
+
 from __future__ import annotations
 
 import argparse

@@ -1,3 +1,5 @@
+"""LLM client abstractions and OpenAI Responses API integration for eval runs."""
+
 from __future__ import annotations
 
 import os

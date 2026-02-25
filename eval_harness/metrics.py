@@ -1,3 +1,5 @@
+"""Scoring utilities for label matching and JSON schema validation tasks."""
+
 from __future__ import annotations
 
 import json

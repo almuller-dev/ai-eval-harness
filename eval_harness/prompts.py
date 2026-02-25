@@ -1,3 +1,5 @@
+"""Prompt loading and template rendering helpers for dataset-driven evaluations."""
+
 from __future__ import annotations
 
 from pathlib import Path
