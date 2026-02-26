@@ -1,1 +1,6 @@
-"""Core package for the AI Eval Harness project."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/__init__.py
+#########################################
+"""

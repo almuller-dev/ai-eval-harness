@@ -1,4 +1,9 @@
-"""Scoring utilities for label matching and JSON schema validation tasks."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/metrics.py
+#########################################
+"""
 
 from __future__ import annotations
 
@@ -12,12 +17,15 @@ from rapidfuzz.distance import Levenshtein
 
 @dataclass(frozen=True)
 class MetricOutcome:
+    """Normalized metric result with pass/fail state, score, and details."""
+
     passed: bool
     score: float
     details: dict[str, Any]
 
 
 def exact_label(pred: str, expected_label: str) -> MetricOutcome:
+    """Score case-insensitive exact label matches."""
     p = pred.strip().lower()
     e = expected_label.strip().lower()
     passed = p == e
@@ -29,6 +37,7 @@ def exact_label(pred: str, expected_label: str) -> MetricOutcome:
 
 
 def json_schema_match(pred: str, schema: dict[str, Any]) -> MetricOutcome:
+    """Parse model output as JSON and validate it against a provided schema."""
     raw = pred.strip()
 
     try:

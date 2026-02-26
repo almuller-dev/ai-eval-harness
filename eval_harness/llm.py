@@ -1,4 +1,9 @@
-"""LLM client abstractions and OpenAI Responses API integration for eval runs."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/llm.py
+#########################################
+"""
 
 from __future__ import annotations
 
@@ -10,6 +15,8 @@ from openai import OpenAI
 
 
 class LLMClient(Protocol):
+    """Protocol for text-generation clients used by eval execution code."""
+
     def generate(self, *, prompt: str, model: str) -> str: ...
 
 

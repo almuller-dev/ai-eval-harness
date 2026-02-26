@@ -1,4 +1,9 @@
-"""Builds CI-friendly markdown summaries from evaluation report JSON artifacts."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/ci_summary.py
+#########################################
+"""
 
 from __future__ import annotations
 
@@ -19,6 +24,7 @@ def _dataset_label(report: dict) -> str:
 
 
 def build_markdown(reports: list[dict]) -> str:
+    """Build a compact markdown summary for one or more eval report payloads."""
     lines: list[str] = []
     lines.append("## Eval CI Summary")
     lines.append("")
@@ -58,6 +64,7 @@ def build_markdown(reports: list[dict]) -> str:
 
 
 def main() -> int:
+    """CLI entrypoint to generate a markdown summary from report JSON files."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--reports", nargs="+", required=True)
     ap.add_argument("--out", default="reports/pr_comment.md")

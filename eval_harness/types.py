@@ -1,4 +1,9 @@
-"""Pydantic models for datasets, row-level results, and evaluation summaries."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/types.py
+#########################################
+"""
 
 from __future__ import annotations
 
@@ -10,6 +15,8 @@ TaskType = Literal["label", "json"]
 
 
 class DatasetRow(BaseModel):
+    """One dataset example with task metadata and expected outputs."""
+
     id: str
     task: TaskType
     input: str
@@ -17,6 +24,8 @@ class DatasetRow(BaseModel):
 
 
 class EvalResult(BaseModel):
+    """Row-level evaluation outcome produced by runner metrics."""
+
     row_id: str
     task: TaskType
     passed: bool
@@ -25,6 +34,8 @@ class EvalResult(BaseModel):
 
 
 class RunSummary(BaseModel):
+    """Aggregate summary for a single dataset evaluation run."""
+
     dataset_path: str
     model: str
     total: int

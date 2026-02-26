@@ -1,4 +1,9 @@
-"""Baseline regression gate utilities for CI quality budget enforcement."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/regression_gate.py
+#########################################
+"""
 
 from __future__ import annotations
 
@@ -17,12 +22,14 @@ def evaluate_regression(
     baseline_pass_rate: float,
     max_drop: float,
 ) -> tuple[bool, float]:
+    """Return whether pass-rate drop is within budget and the measured drop."""
     drop = baseline_pass_rate - current_pass_rate
     allowed_drop = max(0.0, max_drop)
     return drop <= allowed_drop, drop
 
 
 def main() -> int:
+    """CLI entrypoint to enforce baseline regression budgets in CI."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--report-json", required=True)
     ap.add_argument("--baseline-json", default="baselines/eval_baseline.json")

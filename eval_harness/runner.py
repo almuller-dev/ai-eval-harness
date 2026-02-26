@@ -1,4 +1,9 @@
-"""Main evaluation execution pipeline and report generation entrypoint."""
+"""
+#########################################
+##      created by: Al Muller
+##       filename: eval_harness/runner.py
+#########################################
+"""
 
 from __future__ import annotations
 
